@@ -139,6 +139,123 @@
       gap: 10px;
     }
 
+    .settings {
+      margin: 0 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(8px);
+      padding: 14px;
+    }
+
+    .settings h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .settings .help {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .field {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(8, 17, 31, 0.7);
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .field input[type="text"],
+    .field textarea,
+    .field select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: rgba(8, 17, 31, 0.9);
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.3;
+    }
+
+    .field .toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .mode-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .mode-state {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .btn.mode-on {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: #bbf7d0;
+    }
+
+    .btn.mode-off {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.45);
+      color: #fecaca;
+    }
+
+    .panel-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .panel-chip {
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--ink);
+    }
+
+    .settings-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     .card {
       background: var(--paper);
       border: 1px solid var(--line);
@@ -203,7 +320,7 @@
       flex-wrap: wrap;
     }
 
-    input[type="text"] {
+    .letter-input {
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 8px 10px;
@@ -258,6 +375,10 @@
         grid-template-columns: 1fr;
       }
 
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+
       .btn {
         width: 100%;
       }
@@ -287,17 +408,100 @@
           <span id="updatedAt" class="stat-helper">Sin actualización todavía</span>
         </div>
         <div class="stat">
-          <span class="stat-label">Acción</span>
-          <span class="stat-value">Asignar</span>
-          <span class="stat-helper">Guardar, mapear o eliminar</span>
+          <span class="stat-label">Paneles detectados</span>
+          <span id="panelCount" class="stat-value">0</span>
+          <span class="stat-helper">Tomados desde pendientes remotos</span>
         </div>
       </div>
     </div>
 
     <div id="status" class="status"></div>
+
+    <section class="settings">
+      <h2>Configuracion De Scrapers</h2>
+      <p class="help">Edita IDs de perfiles Dolphin y la lista de usuarios. Se guarda localmente para usarlo en el modo por bandeja.</p>
+
+      <div class="settings-grid" style="margin-bottom:10px;">
+        <div class="field">
+          <label for="dataApiBase">API de Datos (pendientes/mapeos)</label>
+          <input id="dataApiBase" type="text" placeholder="https://higienixservicios.com" />
+        </div>
+        <div class="field">
+          <label for="controlApiBase">API de Control (worker modos)</label>
+          <input id="controlApiBase" type="text" placeholder="https://tu-control-api.com" />
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button id="saveApiBaseBtn" class="btn">Guardar APIs</button>
+          <div id="apiConnectionStatus" class="stat-helper" style="margin-top:8px;">Sin validar</div>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="field">
+          <label for="profileTodosId">Perfil TODOS</label>
+          <input id="profileTodosId" type="text" placeholder="ID Dolphin para TODOS" />
+          <div class="mode-row">
+            <button id="modeTodosBtn" class="btn mode-toggle" data-scope="todos" type="button">Encendido</button>
+            <span id="modeTodosState" class="mode-state">Modo activo</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="profileCerradosId">Perfil CERRADOS</label>
+          <input id="profileCerradosId" type="text" placeholder="ID Dolphin para CERRADOS" />
+          <div class="mode-row">
+            <button id="modeCerradosBtn" class="btn mode-toggle" data-scope="cerrados" type="button">Encendido</button>
+            <span id="modeCerradosState" class="mode-state">Modo activo</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="profileUsuariosId">Perfil USUARIOS</label>
+          <input id="profileUsuariosId" type="text" placeholder="ID Dolphin para USUARIOS" />
+          <div class="mode-row">
+            <button id="modeUsuariosBtn" class="btn mode-toggle" data-scope="usuarios" type="button">Encendido</button>
+            <span id="modeUsuariosState" class="mode-state">Modo activo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="field">
+          <label for="executionMode">Modo de Ejecucion</label>
+          <select id="executionMode">
+            <option value="parallel">Paralelo (Opcion A)</option>
+            <option value="sequential">Secuencial</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="maxConcurrencyPerProfile">Concurrencia por perfil</label>
+          <input id="maxConcurrencyPerProfile" type="text" placeholder="Ej: 3" />
+        </div>
+        <div class="field">
+          <label for="maxUsersPerPass">Max usuarios por pasada</label>
+          <input id="maxUsersPerPass" type="text" placeholder="Ej: 5" />
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label for="usersList">Usuarios (uno por linea)</label>
+        <textarea id="usersList" placeholder="Ejemplo:\nPanel Fortu\nPanel Scarlett\nID departamento"></textarea>
+      </div>
+
+      <div class="settings-actions">
+        <button id="saveConfigBtn" class="btn primary">Guardar Configuracion</button>
+        <button id="reloadConfigBtn" class="btn">Recargar Configuracion</button>
+      </div>
+    </section>
+
+    <section class="settings">
+      <h2>Paneles Anotados</h2>
+      <p class="help">Lista de paneles detectados en las URLs pendientes remotas.</p>
+      <div id="panelsList" class="panel-list"></div>
+    </section>
+
     <div id="list" class="grid"></div>
   </div>
 
-  <script src="./app.js"></script>
+  <script type="module" src="./js/main.js"></script>
 </body>
 </html>
